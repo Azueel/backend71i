@@ -79,7 +79,22 @@ const loginUsuario = async (req, res) => {
 	}
 };
 
+const listaUsuarios = async (req, res) => {
+	try {
+		const usuarios = await Usuario.find();
+		res.status(200).json({
+			msg: 'Usuarios enviados',
+			usuarios,
+		});
+	} catch (error) {
+		res.status(500).json({
+			msg: 'Por favor contactarse con el administrador',
+		});
+	}
+};
+
 module.exports = {
 	crearUsuario,
 	loginUsuario,
+	listaUsuarios,
 };
