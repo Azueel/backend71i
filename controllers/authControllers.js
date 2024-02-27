@@ -1,5 +1,6 @@
 const Usuario = require('../model/usuario-model');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const crearUsuario = async (req, res) => {
 	const { name, email, password } = req.body;
@@ -26,6 +27,7 @@ const crearUsuario = async (req, res) => {
 				msg: 'Un Usuario ya existe con este correo',
 			});
 		}
+
 		//en el caso que no exista el correo, creamos una instancia
 		usuario = new Usuario(req.body);
 
@@ -53,7 +55,6 @@ const loginUsuario = async (req, res) => {
 
 	try {
 		let usuario = await Usuario.findOne({ email });
-
 		if (!usuario) {
 			return res.status(400).json({
 				msg: 'El Correo ingresado no se encuentra',
@@ -68,8 +69,21 @@ const loginUsuario = async (req, res) => {
 			});
 		}
 
+		//creamos un objeto el cual definimos los datos que queremos guardar en el token, NO GUARDAR INFORMACION SENSIBLE
+		const payload = {
+			name: usuario.name,
+			id: usuario._id,
+			rol: usuario.rol,
+		};
+
+		//creamos el token y definimos cuanto tiempo queremos que dure
+		const token = jwt.sign(payload, process.env.SECRET_JWT, {
+			expiresIn: '3h',
+		});
+
 		res.status(200).json({
 			msg: 'Usuario Logueado',
+			token,
 		});
 	} catch (error) {
 		console.log(error);
@@ -79,22 +93,7 @@ const loginUsuario = async (req, res) => {
 	}
 };
 
-const listaUsuarios = async (req, res) => {
-	try {
-		const usuarios = await Usuario.find();
-		res.status(200).json({
-			msg: 'Usuarios enviados',
-			usuarios,
-		});
-	} catch (error) {
-		res.status(500).json({
-			msg: 'Por favor contactarse con el administrador',
-		});
-	}
-};
-
 module.exports = {
 	crearUsuario,
 	loginUsuario,
-	listaUsuarios,
 };
