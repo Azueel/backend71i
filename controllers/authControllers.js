@@ -81,8 +81,11 @@ const loginUsuario = async (req, res) => {
 			expiresIn: '3h',
 		});
 
+		const { rol } = usuario;
+
 		res.status(200).json({
 			msg: 'Usuario Logueado',
+			rol: usuario.rol,
 			token,
 		});
 	} catch (error) {
